@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(sam_bot_description)
-
-add_compile_options(-g)
+project(icube_description)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -24,7 +22,7 @@ find_package(ament_cmake REQUIRED)
 # find_package(<dependency> REQUIRED)
 
 install(
-  DIRECTORY src launch rviz config world
+  DIRECTORY src launch rviz config world urdf meshes
   DESTINATION share/${PROJECT_NAME}
 )
 

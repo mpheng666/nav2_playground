@@ -1,13 +1,19 @@
 import launch
-from launch.substitutions import Command, LaunchConfiguration
+from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
+
 import launch_ros
 import os
 
 def generate_launch_description():
     pkg_share = launch_ros.substitutions.FindPackageShare(package='sam_bot_description').find('sam_bot_description')
     default_model_path = os.path.join(pkg_share, 'src/description/sam_bot_description.urdf')
-    world_path=os.path.join(pkg_share, 'world/my_world.sdf'),
+    world_path=os.path.join(pkg_share, 'world/my_world.sdf')
     # default_rviz_config_path = os.path.join(pkg_share, 'rviz/urdf_config.rviz')
+
+    cfr_world_path = PathJoinSubstitution(
+                    [FindPackageShare("cfr_gazebo"), "worlds", "cfr_boundary.world"]
+    )
 
     robot_state_publisher_node = launch_ros.actions.Node(
         package='robot_state_publisher',
@@ -21,6 +27,14 @@ def generate_launch_description():
         name='joint_state_publisher',
         condition=launch.conditions.UnlessCondition(LaunchConfiguration('gui'))
     )
+
+    joint_state_publisher_gui_node = launch_ros.actions.Node(
+        package='joint_state_publisher_gui',
+        executable='joint_state_publisher_gui',
+        name='joint_state_publisher_gui',
+        condition=launch.conditions.IfCondition(LaunchConfiguration('gui'))
+    )
+
     rviz_node = launch_ros.actions.Node(
         package='rviz2',
         executable='rviz2',
@@ -50,12 +64,13 @@ def generate_launch_description():
                                             description='Absolute path to robot urdf file'),
         # launch.actions.DeclareLaunchArgument(name='rvizconfig', default_value=default_rviz_config_path,
         #                                     description='Absolute path to rviz config file'),
-        launch.actions.ExecuteProcess(cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_init.so', '-s', 'libgazebo_ros_factory.so', world_path], output='screen'),
+        launch.actions.ExecuteProcess(cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_init.so', '-s', 'libgazebo_ros_factory.so', cfr_world_path], output='screen'),
         launch.actions.DeclareLaunchArgument(name='use_sim_time', default_value='True',
                                             description='Flag to enable use_sim_time'),
         joint_state_publisher_node,
+        joint_state_publisher_gui_node,
         robot_state_publisher_node,
         rviz_node,
-        spawn_entity,
-        robot_localization_node
+        spawn_entity
+        # robot_localization_node
     ])

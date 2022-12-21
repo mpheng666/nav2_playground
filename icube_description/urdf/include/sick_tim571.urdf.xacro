@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find icube_description)/urdf/include/common_properties.urdf.xacro" />
+
+	<!-- lidar approximate physical properties -->
+  <xacro:property name="laser_x" value="0.08" />
+  <xacro:property name="laser_y" value="0.08" />
+  <xacro:property name="laser_z" value="0.12" />
+  <xacro:property name="laser_mass" value="1.0" />
+
+	<!-- sick tim571 -->
+  <xacro:macro name="sick_tim571" params="link topic">
+    <link name="${link}">
+      <xacro:box_inertial x="${laser_x}" y="${laser_y}" z="${laser_z}" mass="${laser_mass}">
+        <origin xyz="0 0 0" />
+      </xacro:box_inertial>
+      <visual>
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="$(find icube_description)/meshes/lidar.dae" />
+        </geometry>
+        <!-- <xacro:insert_block name="material_black" /> -->
+      </visual>
+      <collision>
+        <origin xyz="0.0 0.0 0.0" rpy="${pi} 0 0" />
+        <geometry>
+          <mesh filename="$(find icube_description)/meshes/lidar.dae" />
+        </geometry>
+      </collision>
+    </link>
+
+		<!-- gazebo sensor plugin -->
+    <gazebo reference="${link}">
+      <!-- <material value="Gazebo/FlatBlack" /> -->
+      <sensor type="ray" name="${link}">
+        <pose>0 0 0 0 0 0</pose>
+        <visualize>true</visualize>
+        <update_rate>15</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>720</samples>
+              <resolution>1</resolution>  <!-- has to be 1; actual resolution will be computed from number of samples + min_angle/max_angle -->
+              <min_angle>${-pi*105/180}</min_angle>
+              <max_angle>${pi*105/180}</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.2</min>
+            <max>25.0</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <!-- Noise parameters based on published spec for tim571 achieving
+                 "+-29mm" accuracy at range < 3m (~0.01 of the range) at
+                 1 sigma. -->
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </ray>
+        <plugin name="gazebo_ros_${link}_controller" filename="libgazebo_ros_ray_sensor.so">
+          <frameName>${link}</frameName>
+          <topicName>${topic}</topicName>
+        </plugin>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+</robot>

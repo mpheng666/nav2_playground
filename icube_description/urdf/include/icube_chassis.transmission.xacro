@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:macro name="icube_wheel_transmission" params="locationprefix">
+    <transmission name="${locationprefix}_wheel_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${locationprefix}_wheel_joint">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${locationprefix}_wheel_motor">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+        <mechanicalReduction>2</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:macro>
+
+  <xacro:macro name="icube_wheel_transmissions">
+    <xacro:icube_wheel_transmission locationprefix="left"/>
+    <xacro:icube_wheel_transmission locationprefix="right"/>
+  </xacro:macro>
+
+</robot>

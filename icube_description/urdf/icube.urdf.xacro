@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="icube" >
+
+  <!-- icube450 base -->
+  <xacro:include filename="$(find icube_description)/urdf/include/icube_chassis.urdf.xacro" />
+
+  <xacro:arg name="robot_namespace" default="" />
+
+  <xacro:icube />
+
+  <!-- <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros2_control.so">
+      <robotNamespace>$(arg robot_namespace)</robotNamespace>
+      <controlPeriod>0.001</controlPeriod>
+      <legacyModeNS>false</legacyModeNS>
+    </plugin>
+  </gazebo> -->
+
+</robot>
